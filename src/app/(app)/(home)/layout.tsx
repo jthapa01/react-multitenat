@@ -1,6 +1,5 @@
 import { Suspense } from "react";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-
 import { getQueryClient, trpc } from '@/trpc/server';
 
 import { Footer } from "@/modules/home/ui/components/footer";
