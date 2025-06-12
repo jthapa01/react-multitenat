@@ -36,12 +36,26 @@ export const authRouter = createTRPCRouter({
         });
       }
 
+      const tenant = await ctx.db.create({
+        collection: "tenants",
+        data: {
+          name: input.username,
+          slug: input.username,
+          stripeAccountId: "test",
+        },
+      });
+
       await ctx.db.create({
         collection: "users",
         data: {
           email: input.email,
           username: input.username,
           password: input.password, // This will be hashed
+          tenants: [
+            {
+              tenant: tenant.id,
+            },
+          ],
         },
       });
 
@@ -65,29 +79,27 @@ export const authRouter = createTRPCRouter({
         value: data.token,
       });
     }),
-    login: baseProcedure
-    .input(loginSchema)
-    .mutation(async ({ input, ctx }) => {
-      const data = await ctx.db.login({
-        collection: "users",
-        data: {
-          email: input.email,
-          password: input.password,
-        },
+  login: baseProcedure.input(loginSchema).mutation(async ({ input, ctx }) => {
+    const data = await ctx.db.login({
+      collection: "users",
+      data: {
+        email: input.email,
+        password: input.password,
+      },
+    });
+
+    if (!data.token) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "Failed to login",
       });
+    }
 
-      if (!data.token) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "Failed to login",
-        });
-      }
+    await generateAuthCookie({
+      prefix: ctx.db.config.cookiePrefix,
+      value: data.token,
+    });
 
-      await generateAuthCookie({
-        prefix: ctx.db.config.cookiePrefix,
-        value: data.token,
-      });
-
-      return data;
-    }),
+    return data;
+  }),
 });
