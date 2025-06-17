@@ -1,6 +1,6 @@
 import z from "zod";
 import type { Sort, Where } from "payload";
-import { Category, Media } from "@/payload-types";
+import { Category, Media, Tenant } from "@/payload-types";
 import { DEFAULT_LIMIT } from "@/constants";
 import { baseProcedure, createTRPCRouter } from "@/trpc/init";
 import { sortValues } from "../search-params";
@@ -11,13 +11,14 @@ export const productsRouter = createTRPCRouter({
       z.object({
         cursor: z.number().default(1),
         limit: z.number().default(DEFAULT_LIMIT),
-         // Category slug
+        // Category slug
         category: z.string().nullable().optional(),
         minPrice: z.string().nullable().optional(),
         maxPrice: z.string().nullable().optional(),
         tags: z.array(z.string()).nullable().optional(),
         sort: z.enum(sortValues).nullable().optional(),
-      }),
+        tenantSlug: z.string().nullable().optional(),
+      })
     )
     .query(async ({ ctx, input }) => {
       const where: Where = {};
@@ -47,6 +48,12 @@ export const productsRouter = createTRPCRouter({
       } else if (input.maxPrice) {
         where.price = {
           less_than_equal: input.maxPrice,
+        };
+      }
+
+      if (input.tenantSlug) {
+        where["tenant.slug"] = {
+          equals: input.tenantSlug,
         };
       }
 
@@ -87,7 +94,7 @@ export const productsRouter = createTRPCRouter({
         }
       }
 
-      if(input.tags && input.tags.length > 0) {
+      if (input.tags && input.tags.length > 0) {
         where["tags.name"] = {
           in: input.tags,
         };
@@ -95,7 +102,7 @@ export const productsRouter = createTRPCRouter({
 
       const data = await ctx.db.find({
         collection: "products",
-        depth: 1, // Populate "category" & "image",
+        depth: 2, // Populate "category", "image", "tenant" & "tenant.image"
         where,
         sort,
         page: input.cursor,
@@ -107,7 +114,8 @@ export const productsRouter = createTRPCRouter({
         docs: data.docs.map((doc) => ({
           ...doc,
           image: doc.image as Media | null, // Ensure image is of type Media or null
-        }))
-      }
+          tenant: doc.tenant as Tenant & { image: Media | null },
+        })),
+      };
     }),
 });
