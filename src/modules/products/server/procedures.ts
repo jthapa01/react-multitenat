@@ -160,7 +160,7 @@ export const productsRouter = createTRPCRouter({
         },
       });
 
-            const dataWithSummarizedReviews = await Promise.all(
+      const dataWithSummarizedReviews = await Promise.all(
         data.docs.map(async (doc) => {
           const reviewsData = await ctx.db.find({
             collection: "reviews",
