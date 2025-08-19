@@ -16,7 +16,10 @@ export const productsRouter = createTRPCRouter({
       const product = await ctx.db.findByID({
         collection: "products",
         id: input.id,
-        depth: 2, // // Load the "product.image", "product.tenant", and "product.tenant.image"
+        depth: 2, // Load the "product.image", "product.tenant", and "product.tenant.image"
+        select: {
+          content: false,
+        },
       });
 
       let isPurchased = false;
@@ -199,6 +202,9 @@ export const productsRouter = createTRPCRouter({
         sort,
         page: input.cursor,
         limit: input.limit,
+        select: {
+          content: false,
+        },
       });
 
       const dataWithSummarizedReviews = await Promise.all(
@@ -226,9 +232,9 @@ export const productsRouter = createTRPCRouter({
         ...data,
         docs: dataWithSummarizedReviews.map((doc) => ({
           ...doc,
-          image: doc.image as Media | null, // Ensure image is of type Media or null
+          image: doc.image as Media | null,
           tenant: doc.tenant as Tenant & { image: Media | null },
-        })),
-      };
+        }))
+      }
     }),
 });
