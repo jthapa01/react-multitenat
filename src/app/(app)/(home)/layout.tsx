@@ -15,11 +15,12 @@ const Layout = async ({ children }: Props) => {
     void queryClient.prefetchQuery(
         trpc.categories.getMany.queryOptions(),
     );
+const dehydratedState = dehydrate(queryClient);
 
     return (
         <div className="flex flex-col min-h-screen">
             <Navbar />
-            <HydrationBoundary state={dehydrate(queryClient)}>
+            <HydrationBoundary state={dehydratedState}>
                 <Suspense fallback={<SearchFiltersSkeleton />}>
                     <SearchFilters />
                 </Suspense>

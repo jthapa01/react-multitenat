@@ -21,10 +21,12 @@ const Page = async ({ searchParams }: Props) => {
     }),
   );
 
+    // ✅ Extract dehydrated state to a stable reference
+  const dehydratedState = dehydrate(queryClient);
   return (
     // hydrate (restore) cache on the client with data fetched on the server
     // dehydrate(queryClient) serializes(dehydrades) the query cache state
-    <HydrationBoundary state={dehydrate(queryClient)}>
+    <HydrationBoundary state={dehydratedState}>
       <ProductListView />
     </HydrationBoundary>
   );
