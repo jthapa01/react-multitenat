@@ -1,15 +1,15 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
-export function generateTenantURL(tenantSlug: string){
-
+export function generateTenantURL(tenantSlug: string) {
   const isDevelopment = process.env.NODE_ENV === "development";
-  const isSubdomainRoutingEnabled = process.env.NEXT_PUBLIC_ENABLE_SUBDOMAIN_ROUTING === "true";
- 
+  const isSubdomainRoutingEnabled =
+    process.env.NEXT_PUBLIC_ENABLE_SUBDOMAIN_ROUTING === "true";
+
   if (isDevelopment || !isSubdomainRoutingEnabled) {
     return `${process.env.NEXT_PUBLIC_APP_URL}/tenants/${tenantSlug}`;
   }
@@ -21,10 +21,10 @@ export function generateTenantURL(tenantSlug: string){
   return `${protocol}://${tenantSlug}.${domain}`;
 }
 
-export function formatCurrency(value: number | string){
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
+export function formatCurrency(value: number | string) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
     maximumFractionDigits: 0,
   }).format(Number(value));
-};
+}
