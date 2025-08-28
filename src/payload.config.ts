@@ -17,6 +17,7 @@ import { Tags } from "./collections/Tags";
 import { Tenants } from "./collections/Tenants";
 import { Reviews } from "./collections/Reviews";
 import { Orders } from "./collections/Orders";
+import { Config } from './payload-types';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -43,7 +44,7 @@ export default buildConfig({
   sharp,
   plugins: [
     payloadCloudPlugin(),
-    multiTenantPlugin({
+    multiTenantPlugin<Config>({
       collections: {
         products: {},
       },
