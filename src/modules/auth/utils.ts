@@ -13,11 +13,15 @@ export const generateAuthCookie = async({
 
     cookies.set({
         name: `${prefix}-token`,
-        value: value,
+        value,
         httpOnly: true,
         path: "/",
-        sameSite: "none",
-        domain: process.env.NEXT_PUBLIC_ROOT_DOMAIN,
-        secure: process.env.NODE_ENV === "production",
+        // This enables the cookie auth on localhost
+        // But it will not work with subdomains turned on
+        ...(process.env.NODE_ENV !== "development" && {
+            sameSite: "none",
+            domain: process.env.NEXT_PUBLIC_ROOT_DOMAIN,
+            secure: true,
+        }),
     });
 };
